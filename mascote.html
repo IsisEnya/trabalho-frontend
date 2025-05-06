@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Mascote Virtual</title>
+        <link rel="stylesheet" href="style.css">
+    </head>
+    <body>
+        <div class="container">
+            <h1>🐶 Mascote Virtual</h1>
+            <h2 id="nomeTitulo">Nome do Mascote:</h2>
+            <h1 id="nomeMascoteDisplay">Carregando...</h1>
+            <div id="mascote">🐾</div>
+
+            <div class="barra-container">
+                <p id="fome-alerta" class="alerta" style="display: none;">⚠️ Estou com fome!</p>
+                <p>Fome: <span id="emoji-fome">😊</span></p>
+                <progress id="fome-barra" value="10" max="20"></progress>
+            </div>
+
+            <div class="barra-container">
+                <p id="alegria-alerta" class="alerta" style="display: none;">⚠️ Estou triste!</p>
+                <p>Alegria: <span id="emoji-alegria">😊</span></p>
+                <progress id="alegria-barra" value="10" max="20"></progress>
+            </div>
+
+            <div class="buttons">
+                <button id="btn-alimentar">🍖 Alimentar</button>
+                <button id="btn-brincar">🎾 Brincar</button>
+            </div>
+        </div>
+        <script src="script.js"></script>
+    </body>
+</html>
