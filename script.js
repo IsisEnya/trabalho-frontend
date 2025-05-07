@@ -1,58 +1,122 @@
-// Valores iniciais
 let hunger = parseInt(localStorage.getItem('fome')) || 10;
 let joy = parseInt(localStorage.getItem('alegria')) || 10;
 
-// Atualiza as barras e emojis
+let fomeFalou = false;
+let alegriaFalou = false;
+let morto = false;
+
+function alimentar() {
+  if (morto) return;
+  if (hunger < 20) hunger += 2;
+  mostrarImagemTemporaria('img/sendo alimentado.png');
+  updateBars();
+  verificarMorte();
+}
+
+function carinho() {
+  if (morto) return;
+  if (joy < 20) joy += 1;
+  mostrarImagemTemporaria('img/falando.png');
+  falar("Não fez mais do que o básico.");
+  updateBars();
+  verificarMorte();
+}
+
+function mostrarImagemTemporaria(src) {
+  const imagem = document.getElementById('imagemMascote');
+  imagem.src = src;
+  setTimeout(() => atualizarImagemEstado(), 1000);
+}
+
 function updateBars() {
   const fomeBarra = document.getElementById('fome-barra');
   const alegriaBarra = document.getElementById('alegria-barra');
   const emojiFome = document.getElementById('emoji-fome');
   const emojiAlegria = document.getElementById('emoji-alegria');
 
-  if (fomeBarra) fomeBarra.value = hunger;
-  if (alegriaBarra) alegriaBarra.value = joy;
+  fomeBarra.value = hunger;
+  alegriaBarra.value = joy;
 
-  if (emojiFome) emojiFome.textContent = hunger <= 0 ? '💀' : '😊';
-  if (emojiAlegria) emojiAlegria.textContent = joy <= 0 ? '😢' : '😊';
+  emojiFome.textContent = hunger <= 0 ? '💀' : '😊';
+  emojiAlegria.textContent = joy <= 0 ? '😢' : '😊';
+
+  if (hunger <= 0 && !fomeFalou) {
+    falar("Me alimente, humano desprezível!");
+    fomeFalou = true;
+  } else if (hunger > 0) {
+    fomeFalou = false;
+  }
+
+  if (joy <= 0 && !alegriaFalou) {
+    falar("Paz não é uma opção.");
+    alegriaFalou = true;
+  } else if (joy > 0) {
+    alegriaFalou = false;
+  }
 
   localStorage.setItem('fome', hunger);
   localStorage.setItem('alegria', joy);
 }
 
-// Alimentar o mascote
-function alimentar() {
-  if (hunger < 20) hunger += 2;
-  updateBars();
-}
-
-// Brincar com o mascote
-function brincar() {
-  if (joy < 20) joy += 2;
-  updateBars();
-}
-
-// Carinho (clique no mascote)
-function carinho() {
-  joy += 1;
-  updateBars();
-}
-
-// Salvar nome do mascote
-function salvarNome(event) {
-  event.preventDefault();
-  const nomeInput = document.getElementById('nomeMascote');
-  if (nomeInput) {
-    localStorage.setItem('nomeMascote', nomeInput.value);
-    window.location.href = 'mascote.html';
+function atualizarImagemEstado() {
+  const imagem = document.getElementById('imagemMascote');
+  if (hunger <= 0 && joy <= 0) {
+    imagem.src = 'img/com fome e sem alegria.png';
+  } else if (hunger <= 0) {
+    imagem.src = 'img/triste sem fome.png';
+  } else if (joy <= 0) {
+    imagem.src = 'img/fome mas feliz.png';
+  } else {
+    imagem.src = 'img/feliz.png';
   }
 }
 
-// Descobrir localização
+function verificarMorte() {
+  if (hunger <= 0 && joy <= 0 && !morto) {
+    morto = true;
+    const imagem = document.getElementById('imagemMascote');
+    imagem.src = 'img/com fome e sem alegria.png';
+    falar("... Adeus, mundo cruel.");
+
+    document.getElementById('btn-alimentar')?.remove();
+    imagem.onclick = null;
+
+    const container = document.querySelector('.container');
+    const retryButton = document.createElement('button');
+    retryButton.textContent = "💀 Tentar de novo";
+    retryButton.onclick = () => {
+      localStorage.clear();
+      window.location.href = 'home.html';
+    };
+    container.appendChild(retryButton);
+  }
+}
+
+function falar(texto) {
+  speechSynthesis.cancel();
+  const utterance = new SpeechSynthesisUtterance(texto);
+  utterance.lang = 'pt-BR';
+  speechSynthesis.speak(utterance);
+}
+
+function salvarNome(event) {
+  event.preventDefault();
+  const nomeInput = document.getElementById('nomeMascote');
+  if (nomeInput && nomeInput.value.trim().length > 0) {
+    localStorage.setItem('nomeMascote', nomeInput.value.trim());
+    window.location.href = 'mascote.html';
+  } else {
+    alert("Digite um nome válido!");
+  }
+}
+
 function descobrirLocalizacao() {
   if (!navigator.geolocation) {
     alert("Geolocalização não é suportada no seu navegador.");
     return;
   }
+
+  alert("🔍 Tentando descobrir onde você está...");
 
   navigator.geolocation.getCurrentPosition(
     position => {
@@ -73,53 +137,35 @@ function descobrirLocalizacao() {
   );
 }
 
-// Início — Executa conforme a página
 document.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById('form-nome');
   const nomeDisplay = document.getElementById('nomeMascoteDisplay');
 
   if (form) {
-    // Página de nomeação
     form.addEventListener('submit', salvarNome);
   }
 
   if (nomeDisplay) {
-    // Página do mascote
     const nome = localStorage.getItem('nomeMascote') || 'Sem nome definido';
     nomeDisplay.textContent = nome;
+    document.getElementById('nomeTitulo').textContent = `Nome do Mascote: ${nome}`;
 
     document.getElementById('btn-alimentar')?.addEventListener('click', alimentar);
-    document.getElementById('btn-brincar')?.addEventListener('click', brincar);
-    document.getElementById('mascote')?.addEventListener('click', carinho);
+    document.getElementById('imagemMascote')?.addEventListener('click', carinho);
 
-    function updateBars() {
-      const fomeBarra = document.getElementById('fome-barra');
-      const alegriaBarra = document.getElementById('alegria-barra');
-      const emojiFome = document.getElementById('emoji-fome');
-      const emojiAlegria = document.getElementById('emoji-alegria');
-      const alertaFome = document.getElementById('fome-alerta');
-      const alertaAlegria = document.getElementById('alegria-alerta');
-    
-      if (fomeBarra) fomeBarra.value = hunger;
-      if (alegriaBarra) alegriaBarra.value = joy;
-    
-      if (emojiFome) emojiFome.textContent = hunger <= 0 ? '💀' : '😊';
-      if (emojiAlegria) emojiAlegria.textContent = joy <= 0 ? '😢' : '😊';
-    
-      if (alertaFome) alertaFome.style.display = hunger <= 0 ? 'block' : 'none';
-      if (alertaAlegria) alertaAlegria.style.display = joy <= 0 ? 'block' : 'none';
-    
-      localStorage.setItem('fome', hunger);
-      localStorage.setItem('alegria', joy);
-    }
-    
     descobrirLocalizacao();
+    updateBars();
+    atualizarImagemEstado();
+    verificarMorte();
 
-    // Redução automática de fome e alegria
     setInterval(() => {
-      if (hunger > 0) hunger -= 1;
-      if (joy > 0) joy -= 1;
-      updateBars();
+      if (!morto) {
+        if (hunger > 0) hunger--;
+        if (joy > 0) joy--;
+        updateBars();
+        atualizarImagemEstado();
+        verificarMorte();
+      }
     }, 2000);
   }
 });

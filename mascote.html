@@ -11,7 +11,9 @@
             <h1>🐶 Mascote Virtual</h1>
             <h2 id="nomeTitulo">Nome do Mascote:</h2>
             <h1 id="nomeMascoteDisplay">Carregando...</h1>
-            <div id="mascote">🐾</div>
+            <div id="mascote" onclick="carinho()">
+                <img id="imagemMascote" src="img/normal.png" alt="Mascote" />
+            </div>
 
             <div class="barra-container">
                 <p id="fome-alerta" class="alerta" style="display: none;">⚠️ Estou com fome!</p>
@@ -27,7 +29,6 @@
 
             <div class="buttons">
                 <button id="btn-alimentar">🍖 Alimentar</button>
-                <button id="btn-brincar">🎾 Brincar</button>
             </div>
         </div>
         <script src="script.js"></script>
